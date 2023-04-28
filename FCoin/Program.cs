@@ -1,15 +1,23 @@
 using FCoin.Business;
 using FCoin.Business.Interfaces;
+using FCoin.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json")
+    .Build();
 
-builder.Services.AddScoped<IValidationManagement, ValidationManagement>(); // Replace ValidationManagement with the actual implementation type
+builder.Services.AddScoped<IValidationManagement, ValidationManagement>();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<FDbContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
@@ -21,9 +29,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
+
