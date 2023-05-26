@@ -2,7 +2,6 @@ using FCoin.Business;
 using FCoin.Business.Interfaces;
 using FCoin.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +12,7 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 builder.Services.AddScoped<IValidationManagement, ValidationManagement>();
+builder.Services.AddScoped<IClientManagement, ClientManagement>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

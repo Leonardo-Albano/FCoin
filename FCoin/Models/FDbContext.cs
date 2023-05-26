@@ -11,7 +11,7 @@ namespace FCoin.Models
         // Add DbSet properties for your entities
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Validator> Validators { get; set; }
-
+        public DbSet<Client> Clients { get; set; }
 
     }
 }
