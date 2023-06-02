@@ -1,5 +1,6 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -7,7 +8,7 @@ namespace FCoin.Business
 {
     public class ClientManagement : IClientManagement
     {
-        private readonly RestClient _restClient = new("http://10.130.48.37:5000/cliente");
+        private readonly RestClient _restClient = new("http://192.168.15.22:5000/cliente");
         public async Task<dynamic> GetClient(int? id)
         {
             try
@@ -76,25 +77,47 @@ namespace FCoin.Business
                 RestRequest request = new($"/{id}/{qtdMoeda}", Method.Post);
                 RestResponse response = await _restClient.ExecuteAsync(request);
 
+                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
                 if (response.IsSuccessful)
                 {
-                    var responseObject = JsonConvert.DeserializeObject(response.Content);
-
-                    //if (responseObject is Client)
-                    //{
-                    //    return JsonConvert.DeserializeObject<Client>(response.Content);
-                    //}
-                    //else
-                    //{
-                    return responseObject;
-                    //}
+                    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Client>(response.Content) : responseObject;
+                    //verify if the response is an error
+                    
+                    Client responseClient = JsonConvert.DeserializeObject<Client>(response.Content);
+                    return responseClient;
                 }
 
-
+                return null;
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public async Task<bool> DeleteClient(int id)
+        {
+            try
+            {
+                RestRequest request = new($"/{id}", Method.Delete);
+                RestResponse response = await _restClient.ExecuteAsync(request);
+
+                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
+                if (response.IsSuccessful)
+                {
+                    if (responseObject.ContainsValue("Cliente Deletado com Sucesso"))
+                    {
+                        return true;
+                    }
+
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+
+                return false;
             }
         }
     }

@@ -25,7 +25,7 @@ namespace FCoin.Controllers
                 return Ok(client);
             }
 
-            return NotFound(client);
+            return NotFound();
         }
 
         [HttpPost]
@@ -51,12 +51,25 @@ namespace FCoin.Controllers
             if (result is Client)
             {
                 return Ok(result);
-            }else if(result is KeyValuePair<string, string>) 
+            }else if(result is Dictionary<dynamic, dynamic>) 
             {
                 return StatusCode(405, "Method Not Allowed");
             }
 
             return BadRequest(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Client(int id)
+        {
+            bool result = await _clientManagement.DeleteClient(id);
+
+            if (result)
+            {
+                return Ok();
+            }
+
+            return StatusCode(405, "Method Not Allowed");
         }
     }
 }

@@ -13,6 +13,7 @@ var configuration = new ConfigurationBuilder()
 
 builder.Services.AddScoped<IValidationManagement, ValidationManagement>();
 builder.Services.AddScoped<IClientManagement, ClientManagement>();
+builder.Services.AddScoped<ISelectorManagement, SelectorManagement>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
