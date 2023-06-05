@@ -17,7 +17,7 @@ namespace FCoin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Selector(int? id)
+        public async Task<IActionResult> GetSelector(int? id)
         {
             dynamic selector = await _selectorManagement.GetSelector(id);
 
@@ -30,7 +30,7 @@ namespace FCoin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Selector(Selector selector)
+        public async Task<IActionResult> CreateSelector(Selector selector)
         {
             selector = await _selectorManagement.CreateSelector(selector);
 
@@ -40,6 +40,23 @@ namespace FCoin.Controllers
             }
 
             return Ok(selector);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateSelector(Selector selector)
+        {
+            var result = await _selectorManagement.UpdateSelector(selector);
+
+            if (result is Client)
+            {
+                return Ok(result);
+            }
+            else if (result is Dictionary<dynamic, dynamic>)
+            {
+                return StatusCode(405, "Method Not Allowed");
+            }
+
+            return BadRequest(result);
         }
     }
 }

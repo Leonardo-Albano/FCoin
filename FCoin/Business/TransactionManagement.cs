@@ -5,19 +5,19 @@ using RestSharp;
 
 namespace FCoin.Business
 {
-    public class SelectorManagement : ISelectorManagement
+    public class TransactionManagement : ITransactionManagement
     {
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
 
-        public SelectorManagement(IConfiguration configuration)
+        public TransactionManagement(IConfiguration configuration)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
-            _restClient = new RestClient($"{ipConnection}/seletor");
+            _restClient = new RestClient($"{ipConnection}/transacoes");
         }
 
-        public async Task<dynamic> GetSelector(int? id)
+        public async Task<dynamic> GetTransaction(int? id)
         {
             try
             {
@@ -34,19 +34,19 @@ namespace FCoin.Business
 
                 RestResponse response = await _restClient.ExecuteAsync(request);
 
-                dynamic selector;
+                dynamic transaction;
                 if (response.IsSuccessful)
                 {
                     if (id.HasValue)
                     {
-                        selector = JsonConvert.DeserializeObject<Selector>(response.Content);
+                        transaction = JsonConvert.DeserializeObject<Transaction>(response.Content);
                     }
                     else
                     {
-                        selector = JsonConvert.DeserializeObject<List<Selector>>(response.Content);
+                        transaction = JsonConvert.DeserializeObject<List<Transaction>>(response.Content);
                     }
 
-                    return selector;
+                    return transaction;
                 }
 
                 return null;
@@ -57,17 +57,17 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<Selector> CreateSelector(Selector selector)
+        public async Task<Transaction> CreateTransaction(Transaction transaction)
         {
             try
             {
-                RestRequest request = new RestRequest($"/{selector.Nome}/{selector.Ip}", Method.Post);
+                RestRequest request = new RestRequest($"/{transaction.Remetente}/{transaction.Recebedor}/{transaction.Valor}", Method.Post);
                 RestResponse response = await _restClient.ExecuteAsync(request);
 
                 if (response.IsSuccessful)
                 {
-                    Selector newSelector = JsonConvert.DeserializeObject<Selector>(response.Content);
-                    return newSelector;
+                    Transaction newTransaction = JsonConvert.DeserializeObject<Transaction>(response.Content);
+                    return newTransaction;
                 }
 
                 return null;
@@ -78,17 +78,17 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<dynamic> UpdateSelector(Selector selector)
+        public async Task<dynamic> UpdateTransaction(Transaction transaction)
         {
             try
             {
-                RestRequest request = new($"/{selector.Id}/{selector.Nome}/{selector.Ip}", Method.Post);
+                RestRequest request = new($"/{transaction.Id}/{transaction.Status}", Method.Post);
                 RestResponse response = await _restClient.ExecuteAsync(request);
 
                 Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
                 if (response.IsSuccessful)
                 {
-                    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Selector>(response.Content) : responseObject;
+                    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Transaction>(response.Content) : responseObject;
                 }
 
                 return null;
@@ -96,32 +96,6 @@ namespace FCoin.Business
             catch (Exception)
             {
                 return null;
-            }
-        }
-
-        public async Task<bool> DeleteSelector(int id)
-        {
-            try
-            {
-                RestRequest request = new($"/{id}", Method.Delete);
-                RestResponse response = await _restClient.ExecuteAsync(request);
-
-                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
-                if (response.IsSuccessful)
-                {
-                    if (responseObject.ContainsValue("Validador Deletado com Sucesso"))
-                    {
-                        return true;
-                    }
-
-                }
-
-                return false;
-            }
-            catch (Exception)
-            {
-
-                return false;
             }
         }
     }

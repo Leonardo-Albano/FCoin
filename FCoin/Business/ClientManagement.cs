@@ -1,6 +1,5 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -8,7 +7,16 @@ namespace FCoin.Business
 {
     public class ClientManagement : IClientManagement
     {
-        private readonly RestClient _restClient = new("http://192.168.15.22:5000/cliente");
+        //private readonly RestClient _restClient = new("http://192.168.15.22:5000/cliente");
+        private readonly RestClient _restClient;
+        private readonly IConfiguration _configuration;
+
+        public ClientManagement(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            string ipConnection = _configuration["IpConnection"];
+            _restClient = new RestClient($"{ipConnection}/cliente");
+        }
         public async Task<dynamic> GetClient(int? id)
         {
             try
@@ -81,10 +89,6 @@ namespace FCoin.Business
                 if (response.IsSuccessful)
                 {
                     return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Client>(response.Content) : responseObject;
-                    //verify if the response is an error
-                    
-                    Client responseClient = JsonConvert.DeserializeObject<Client>(response.Content);
-                    return responseClient;
                 }
 
                 return null;

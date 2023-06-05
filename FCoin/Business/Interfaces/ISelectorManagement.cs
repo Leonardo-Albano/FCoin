@@ -6,7 +6,7 @@ namespace FCoin.Business.Interfaces
     {
         Task<dynamic> GetSelector(int? id);
         Task<Selector> CreateSelector(Selector selector);
-        //Task<dynamic> UpdateSelector(int id, int qtdMoeda);
-        //Task<bool> DeleteSelector(int id);
+        Task<dynamic> UpdateSelector(Selector selector);
+        Task<bool> DeleteSelector(int id);
     }
 }

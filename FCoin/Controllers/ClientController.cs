@@ -16,7 +16,7 @@ namespace FCoin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Client(int? id)
+        public async Task<IActionResult> GetClient(int? id)
         {
             dynamic client = await _clientManagement.GetClient(id);
 
@@ -29,7 +29,7 @@ namespace FCoin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Client(Client client)
+        public async Task<IActionResult> CreateClient(Client client)
         {
             client = await _clientManagement.CreateClient(client);
 
@@ -42,11 +42,9 @@ namespace FCoin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Client(int id, int qtdMoeda)
+        public async Task<IActionResult> UpdateClient(int id, int qtdMoeda)
         {
             var result = await _clientManagement.UpdateClient(id, qtdMoeda);
-
-            //fazer uma lógica para corrigir o status code
 
             if (result is Client)
             {
@@ -60,7 +58,7 @@ namespace FCoin.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Client(int id)
+        public async Task<IActionResult> DeleteClient(int id)
         {
             bool result = await _clientManagement.DeleteClient(id);
 
