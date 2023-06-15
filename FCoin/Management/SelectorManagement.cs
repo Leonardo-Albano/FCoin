@@ -2,6 +2,7 @@
 using FCoin.Models;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Runtime.CompilerServices;
 
 namespace FCoin.Business
 {
@@ -9,12 +10,16 @@ namespace FCoin.Business
     {
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
+        private readonly IClientManagement _clientManagement;
+        private readonly IValidatorManagement _validatorManagement;
 
-        public SelectorManagement(IConfiguration configuration)
+        public SelectorManagement(IConfiguration configuration, IClientManagement clientManagement, IValidatorManagement validatorManagement)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/seletor");
+            _clientManagement = clientManagement;
+            _validatorManagement = validatorManagement;
         }
 
         public async Task<dynamic> GetSelector(int? id)
@@ -124,5 +129,18 @@ namespace FCoin.Business
                 return false;
             }
         }
+
+        //public async Task<KeyValuePair<int, bool>> SelectValidators()
+        //{
+        //    try
+        //    {
+        //        List<Validator> validators = await _validatorManagement.GetValidator(null);
+
+
+        //    }
+        //    catch (Exception)
+        //    {
+        //    }
+        //}
     }
 }

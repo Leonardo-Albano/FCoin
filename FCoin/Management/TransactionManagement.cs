@@ -10,14 +10,16 @@ namespace FCoin.Business
     {
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
+        private readonly IValidatorManagement _validatorManagement;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork)
+        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork, IValidatorManagement validatorManagement)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/transacoes");
             _unitOfWork = unitOfWork;
+            _validatorManagement = validatorManagement;
         }
 
         public async Task<dynamic> GetTransaction(int? id)

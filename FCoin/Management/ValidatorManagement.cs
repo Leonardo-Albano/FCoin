@@ -90,7 +90,7 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<bool> ValidateTransaction(int id)
+        public async Task<bool> ValidateTransaction(int idValidator, string tokenValidator, int id)
         {
             try
             {
@@ -103,6 +103,7 @@ namespace FCoin.Business
 
                 Client? clientSender = await _clientManagement.GetClient(transaction.Remetente);
                 Client? clientReceiver = await _clientManagement.GetClient(transaction.Recebedor);
+                Validator validator = await GetValidator(idValidator);
                 DateTime? hour = await _hourManagement.GetHour();
                 DateTime lastTransactionHour = await _unitOfWork.Transaction.LastTransaction();
                 int numberOfTransactionsInLastMinute = await _unitOfWork.Transaction.TransactionsInLastMinuteCountByClientId(transaction.Remetente);
@@ -116,7 +117,8 @@ namespace FCoin.Business
                     hour >= transaction.Data ||
                     hour >= clientSender.InvalidoAte ||
                     transaction.Data > lastTransactionHour ||
-                    numberOfTransactionsInLastMinute > 1000
+                    numberOfTransactionsInLastMinute > 1000 ||
+                    tokenValidator != validator.Token
                     //transaction.Time > lastTransaction.Time
                     //uniqueKey
                     )

@@ -1,5 +1,6 @@
 ﻿using FCoin.Business.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace FCoin.Controllers
 {
@@ -15,9 +16,10 @@ namespace FCoin.Controllers
         }
 
         [HttpPost]
-        public async Task<bool> ValidateTransaction(int id)
+        public async Task<bool> ValidateTransaction(int idValidator, string tokenValidator, int id)
         {
-            return false;
+            var result = await _validatorManagement.ValidateTransaction(idValidator, tokenValidator, id);
+            return result;
         }
     }
 }

@@ -69,10 +69,10 @@ namespace FCoin.Business
 
                 if (response.IsSuccessful)
                 {
-                    client = JsonConvert.DeserializeObject<Client>(response.Content);
-
                     _unitOfWork.Client.Add(client);
                     await _unitOfWork.CommitAsync();
+                    client = JsonConvert.DeserializeObject<Client>(response.Content);
+                    client.Id = 0;
 
                     return client;
                 }
