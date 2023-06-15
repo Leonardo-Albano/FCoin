@@ -7,8 +7,7 @@
         public int Recebedor { get; set; }
         public int Valor { get; set; }
         public int Status { get; set; }
-
-        
+        public DateTime Data { get; set; }
 
     }
 }

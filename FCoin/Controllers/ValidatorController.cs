@@ -14,6 +14,7 @@ namespace FCoin.Controllers
             _validatorManagement = validatorManagement;
         }
 
+        [HttpPost]
         public async Task<bool> ValidateTransaction(int id)
         {
             return false;

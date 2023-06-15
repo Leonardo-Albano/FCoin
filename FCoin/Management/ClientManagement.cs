@@ -1,5 +1,6 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
+using FCoin.Repositories;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -10,12 +11,14 @@ namespace FCoin.Business
         //private readonly RestClient _restClient = new("http://192.168.15.22:5000/cliente");
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ClientManagement(IConfiguration configuration)
+        public ClientManagement(IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/cliente");
+            _unitOfWork = unitOfWork;
         }
         public async Task<dynamic> GetClient(int? id)
         {
@@ -67,6 +70,10 @@ namespace FCoin.Business
                 if (response.IsSuccessful)
                 {
                     client = JsonConvert.DeserializeObject<Client>(response.Content);
+
+                    _unitOfWork.Client.Add(client);
+                    await _unitOfWork.CommitAsync();
+
                     return client;
                 }
 
@@ -88,7 +95,22 @@ namespace FCoin.Business
                 Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
                 if (response.IsSuccessful)
                 {
-                    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Client>(response.Content) : responseObject;
+                    if (responseObject.Count > 1)
+                    {
+                        Client client = JsonConvert.DeserializeObject<Client>(response.Content);
+
+                        Client contextClient = await _unitOfWork.Client.GetByIdAsync(id);
+                        contextClient.QtdMoeda = qtdMoeda;
+
+                        _unitOfWork.Client.Update(contextClient);
+                        await _unitOfWork.CommitAsync();
+
+                        return client;
+                    }
+                    else
+                    {
+                        return responseObject;
+                    }
                 }
 
                 return null;

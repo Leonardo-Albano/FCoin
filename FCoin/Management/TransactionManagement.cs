@@ -1,5 +1,6 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
+using FCoin.Repositories;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -9,12 +10,14 @@ namespace FCoin.Business
     {
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TransactionManagement(IConfiguration configuration)
+        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/transacoes");
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<dynamic> GetTransaction(int? id)
@@ -67,6 +70,10 @@ namespace FCoin.Business
                 if (response.IsSuccessful)
                 {
                     Transaction newTransaction = JsonConvert.DeserializeObject<Transaction>(response.Content);
+
+                    _unitOfWork.Transaction.Add(newTransaction);
+                    await _unitOfWork.SaveChangesAsync();
+
                     return newTransaction;
                 }
 
