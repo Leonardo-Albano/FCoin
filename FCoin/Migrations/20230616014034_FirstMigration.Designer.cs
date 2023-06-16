@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FCoin.Migrations
 {
     [DbContext(typeof(FDbContext))]
-    [Migration("20230615205927_FirstMigration")]
+    [Migration("20230616014034_FirstMigration")]
     partial class FirstMigration
     {
         /// <inheritdoc />
@@ -33,10 +33,10 @@ namespace FCoin.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Flags")
+                    b.Property<int?>("Flags")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("InvalidoAte")
+                    b.Property<DateTime?>("InvalidoAte")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Nome")
@@ -53,6 +53,27 @@ namespace FCoin.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("FCoin.Models.Selector", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Selectors");
                 });
 
             modelBuilder.Entity("FCoin.Models.Transaction", b =>

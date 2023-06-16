@@ -20,12 +20,26 @@ namespace FCoin.Migrations
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Senha = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     QtdMoeda = table.Column<int>(type: "int", nullable: false),
-                    InvalidoAte = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Flags = table.Column<int>(type: "int", nullable: false)
+                    InvalidoAte = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Flags = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clients", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Selectors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Ip = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Selectors", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,6 +78,9 @@ namespace FCoin.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "Selectors");
 
             migrationBuilder.DropTable(
                 name: "Transactions");

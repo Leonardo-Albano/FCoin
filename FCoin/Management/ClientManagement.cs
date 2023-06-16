@@ -72,7 +72,6 @@ namespace FCoin.Business
                     _unitOfWork.Client.Add(client);
                     await _unitOfWork.CommitAsync();
                     client = JsonConvert.DeserializeObject<Client>(response.Content);
-                    client.Id = 0;
 
                     return client;
                 }
@@ -131,6 +130,10 @@ namespace FCoin.Business
                 Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
                 if (response.IsSuccessful)
                 {
+                    Client client = await _unitOfWork.Client.GetByIdAsync(id);
+                    _unitOfWork.Client.Remove(client);
+                    await _unitOfWork.CommitAsync();
+
                     if (responseObject.ContainsValue("Cliente Deletado com Sucesso"))
                     {
                         return true;
