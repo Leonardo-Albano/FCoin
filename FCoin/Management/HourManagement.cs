@@ -29,7 +29,7 @@ namespace FCoin.Business
                     return hour;
                 }
 
-                return null;
+                return DateTime.Now;
             }
             catch (Exception)
             {

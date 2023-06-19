@@ -1,7 +1,6 @@
 ﻿using FCoin.Models;
-using FCoin.Repositories.Interfaces;
 
-namespace FCoin.Repositories
+namespace FCoin.Repositories.Interfaces
 {
     public interface ISelectorRepository : IRepository<Selector>
     {

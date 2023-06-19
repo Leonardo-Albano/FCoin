@@ -7,8 +7,10 @@ namespace FCoin.Configuration
 {
     public static class AddServiceScopes
     {
-        public static void RegisterDependencies(this IServiceCollection services)
+        public static IServiceCollection RegisterDependencies(this IServiceCollection services)
         {
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             services.AddScoped<IClientManagement, ClientManagement>();
             services.AddScoped<IClientRepository, ClientRepository>();
 
@@ -22,11 +24,12 @@ namespace FCoin.Configuration
 
             services.AddScoped<ITransactionManagement, TransactionManagement>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            return services;
         }
 
     }

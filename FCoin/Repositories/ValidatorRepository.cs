@@ -10,7 +10,13 @@ namespace FCoin.Repositories
         public ValidatorRepository(DbContext context) : base(context)
         {
         }
-
+        
+        public async Task<List<Validator>> ValidatorsBySelectorId(int selectorId)
+        {
+            return await _context.Validators
+                        .Where(v=>v.SelectorId == selectorId)
+                        .ToListAsync();
+        }
 
 
         public ValidatorRepository(FDbContext STContext) : base(STContext)

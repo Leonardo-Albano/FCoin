@@ -6,6 +6,6 @@ namespace FCoin.Business.Interfaces
     {
         Task<Transaction> CreateTransaction(Transaction transaction);
         Task<dynamic> GetTransaction(int? id);
-        Task<dynamic> UpdateTransaction(Transaction transaction);
+        Task<dynamic> UpdateTransaction(int id, int status);
     }
 }

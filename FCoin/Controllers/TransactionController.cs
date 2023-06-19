@@ -30,8 +30,15 @@ namespace FCoin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTransaction(Transaction transaction)
+        public async Task<IActionResult> CreateTransaction(int RemetenteId, int RecebedorId, int valor)
         {
+            Transaction transaction = new()
+            {
+                Remetente = RemetenteId,
+                Recebedor = RecebedorId,
+                Valor = valor
+            };
+
             transaction = await _transactionManagement.CreateTransaction(transaction);
 
             if (transaction == null)
@@ -43,18 +50,18 @@ namespace FCoin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateTransaction(Transaction transaction)
+        public async Task<IActionResult> UpdateTransaction(int id, int status)
         {
-            var result = await _transactionManagement.UpdateTransaction(transaction);
+            var result = await _transactionManagement.UpdateTransaction(id, status);
 
-            if (result is Client)
+            if (result is Transaction)
             {
                 return Ok(result);
             }
-            else if (result is Dictionary<dynamic, dynamic>)
-            {
-                return StatusCode(405, "Method Not Allowed");
-            }
+            //else if (result is Dictionary<dynamic, dynamic>)
+            //{
+            //    return StatusCode(405, "Method Not Allowed");
+            //}
 
             return BadRequest(result);
         }

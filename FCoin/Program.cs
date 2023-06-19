@@ -1,10 +1,7 @@
 using FCoin;
-using FCoin.Business;
-using FCoin.Business.Interfaces;
 using FCoin.Configuration;
-using FCoin.Repositories;
-using FCoin.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,22 +13,7 @@ var configuration = new ConfigurationBuilder()
 
 builder.Services.AddDbContext<FDbContext>(options =>
 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
-//builder.Services.AddScoped<IClientManagement, ClientManagement>();
-//builder.Services.AddScoped<IClientRepository, ClientRepository>();
-//builder.Services.AddScoped<IHourManagement, HourManagement>();
-//builder.Services.AddScoped<ISelectorManagement, SelectorManagement>();
-//builder.Services.AddScoped<IValidatorManagement, ValidatorManagement>();
-//builder.Services.AddScoped<IValidatorRepository, ValidatorRepository>();
-//builder.Services.AddScoped<ITransactionManagement, TransactionManagement>();
-//builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-AddServiceScopes.RegisterDependencies(builder.Services);
-
-//builder.Services.AddControllers();
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
+builder.Services.RegisterDependencies();
 
 var app = builder.Build();
 

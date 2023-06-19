@@ -24,35 +24,45 @@ namespace FCoin.Business
         {
             try
             {
-                dynamic client;
-                RestRequest request;
+                //dynamic client;
+                //RestRequest request;
+
+                //if (id.HasValue)
+                //{
+                    //request = new RestRequest($"/{id}", Method.Get);
+                //}
+                //else
+                //{
+                    //request = new RestRequest();
+                //}
+
+
+                //RestResponse response = await _restClient.ExecuteAsync(request);
+
+                //if (response.IsSuccessful)
+                //{
+                //    if (id.HasValue)
+                //    {
+                //        client = JsonConvert.DeserializeObject<Client>(response.Content);
+                //    }
+                //    else
+                //    {
+                //        client = JsonConvert.DeserializeObject<List<Client>>(response.Content);
+                //    }
+
+                //    return client;
+                //}
+
+                //return null;
 
                 if (id.HasValue)
                 {
-                    request = new RestRequest($"/{id}", Method.Get);
+                    return await _unitOfWork.Client.GetByIdAsync(id.Value);
                 }
                 else
                 {
-                    request = new RestRequest();
+                    return await _unitOfWork.Client.GetAllAsync();
                 }
-
-                RestResponse response = await _restClient.ExecuteAsync(request);
-
-                if (response.IsSuccessful)
-                {
-                    if (id.HasValue)
-                    {
-                        client = JsonConvert.DeserializeObject<Client>(response.Content);
-                    }
-                    else
-                    {
-                        client = JsonConvert.DeserializeObject<List<Client>>(response.Content);
-                    }
-
-                    return client;
-                }
-
-                return null;
             }
             catch (Exception)
             {
@@ -64,19 +74,25 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request = new($"/{client.Nome}/{client.Senha}/{client.QtdMoeda}", Method.Post);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new($"/{client.Nome}/{client.Senha}/{client.QtdMoeda}", Method.Post);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                if (response.IsSuccessful)
-                {
-                    _unitOfWork.Client.Add(client);
-                    await _unitOfWork.CommitAsync();
-                    client = JsonConvert.DeserializeObject<Client>(response.Content);
+                //if (response.IsSuccessful)
+                //{
+                //    _unitOfWork.Client.Add(client);
+                //    await _unitOfWork.CommitAsync();
+                //    client = JsonConvert.DeserializeObject<Client>(response.Content);
 
-                    return client;
-                }
+                //    return client;
+                //}
 
-                return null;
+                //return null;
+
+                _unitOfWork.Client.Add(client);
+                await _unitOfWork.CommitAsync();
+
+                return client;
+
             }
             catch (Exception)
             {
@@ -88,31 +104,32 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request = new($"/{id}/{qtdMoeda}", Method.Post);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new($"/{id}/{qtdMoeda}", Method.Post);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
-                if (response.IsSuccessful)
-                {
-                    if (responseObject.Count > 1)
-                    {
-                        Client client = JsonConvert.DeserializeObject<Client>(response.Content);
+                //Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
+                //if (response.IsSuccessful)
+                //{
+                //    if (responseObject.Count > 1)
+                //    {
+                //        Client client = JsonConvert.DeserializeObject<Client>(response.Content);
+                //        return client;
+                //    }
+                //    else
+                //    {
+                //        return responseObject;
+                //    }
+                //}
 
-                        Client contextClient = await _unitOfWork.Client.GetByIdAsync(id);
-                        contextClient.QtdMoeda = qtdMoeda;
+                //return null;
 
-                        _unitOfWork.Client.Update(contextClient);
-                        await _unitOfWork.CommitAsync();
+                Client client = await _unitOfWork.Client.GetByIdAsync(id);
+                client.QtdMoeda = qtdMoeda;
 
-                        return client;
-                    }
-                    else
-                    {
-                        return responseObject;
-                    }
-                }
+                _unitOfWork.Client.Update(client);
+                await _unitOfWork.CommitAsync();
 
-                return null;
+                return client;
             }
             catch (Exception)
             {
@@ -124,24 +141,25 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request = new($"/{id}", Method.Delete);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new($"/{id}", Method.Delete);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
-                if (response.IsSuccessful)
-                {
-                    Client client = await _unitOfWork.Client.GetByIdAsync(id);
-                    _unitOfWork.Client.Remove(client);
-                    await _unitOfWork.CommitAsync();
+                //Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
+                //if (response.IsSuccessful)
+                //{
 
-                    if (responseObject.ContainsValue("Cliente Deletado com Sucesso"))
-                    {
-                        return true;
-                    }
+                    //if (responseObject.ContainsValue("Cliente Deletado com Sucesso"))
+                //    {
+                //        return true;
+                //    }
 
-                }
+                //}
 
-                return false;
+                //return false;
+
+                Client client = await _unitOfWork.Client.GetByIdAsync(id);
+                _unitOfWork.Client.Remove(client);
+                return await _unitOfWork.CommitAsync() > 0;
             }
             catch (Exception)
             {

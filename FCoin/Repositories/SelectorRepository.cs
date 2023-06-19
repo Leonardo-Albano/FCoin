@@ -1,4 +1,5 @@
 ﻿using FCoin.Models;
+using FCoin.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FCoin.Repositories

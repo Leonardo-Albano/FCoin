@@ -25,19 +25,28 @@ namespace FCoin.Business
         {
             try
             {
-                dynamic validator;
+                //dynamic validator;
+
+                //if (id.HasValue)
+                //{
+                //    validator = await _unitOfWork.Validator.GetByIdAsync(id.Value);
+                //}
+                //else
+                //{
+                //    validator = await _unitOfWork.Validator.GetAllAsync();
+                //}
+
+                //return validator;
+
 
                 if (id.HasValue)
                 {
-                    validator = await _unitOfWork.Validator.GetByIdAsync(id.Value);
+                    return await _unitOfWork.Validator.GetByIdAsync(id.Value);
                 }
                 else
                 {
-                    validator = _unitOfWork.Validator.GetAll();
+                    return await _unitOfWork.Validator.GetAllAsync();
                 }
-
-                return validator;
-
             }
             catch (Exception)
             {
@@ -45,22 +54,38 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<Validator> CreateValidator(Validator validator)
+        public async Task<List<Validator>> GetValidatorsBySelector(int selectorId)
         {
             try
             {
-                _unitOfWork.Validator.Add(validator);
-
-                if(await _unitOfWork.CommitAsync() > 0)
-                {
-                    return validator;
-                }
-
-                return null;
+                List<Validator> validators = await _unitOfWork.Validator.ValidatorsBySelectorId(selectorId);
+                return validators;
             }
             catch (Exception)
             {
-                return null;
+                return new();
+            }
+        }
+
+        public async Task<int> CreateValidator(Validator validator)
+        {
+            try
+            {
+                Selector selector = await _unitOfWork.Selector.GetByIdAsync(validator.SelectorId);
+
+                if (selector == null)
+                    return 0;
+
+                validator.Selector = selector;
+                _unitOfWork.Validator.Add(validator);
+
+                await _unitOfWork.CommitAsync();
+                return validator.Id;
+
+            }
+            catch (Exception)
+            {
+                return 0;
             }
         }
 
@@ -70,7 +95,7 @@ namespace FCoin.Business
             {
                 Validator validator = await _unitOfWork.Validator.GetByIdAsync(id);
 
-                if(validator == null)
+                if (validator == null)
                 {
                     return false;
                 }
@@ -96,7 +121,7 @@ namespace FCoin.Business
             {
                 Transaction? transaction = await _transactionManagement.GetTransaction(id);
 
-                if(transaction == null)
+                if (transaction == null)
                 {
                     return false;
                 }
@@ -108,7 +133,7 @@ namespace FCoin.Business
                 DateTime lastTransactionHour = await _unitOfWork.Transaction.LastTransaction();
                 int numberOfTransactionsInLastMinute = await _unitOfWork.Transaction.TransactionsInLastMinuteCountByClientId(transaction.Remetente);
 
-                if(clientSender == null || clientReceiver == null || hour == null)
+                if (clientSender == null || clientReceiver == null || hour == null)
                 {
                     return false;
                 }

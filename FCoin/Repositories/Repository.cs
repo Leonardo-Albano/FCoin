@@ -17,12 +17,12 @@ namespace FCoin.Repositories
             _dbSet = context.Set<TEntity>();
         }
 
-        public List<TEntity> GetAll()
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            return _dbSet.ToList();
+            return await _dbSet.ToListAsync();
         }
 
-        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate)
+        public IQueryable<TEntity> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return _dbSet.Where(predicate);
         }

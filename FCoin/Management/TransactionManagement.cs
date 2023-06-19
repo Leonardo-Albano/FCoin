@@ -3,6 +3,7 @@ using FCoin.Models;
 using FCoin.Repositories;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Runtime.CompilerServices;
 
 namespace FCoin.Business
 {
@@ -24,35 +25,44 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request;
+                //RestRequest request;
+
+                //if (id.HasValue)
+                //{
+                //    request = new RestRequest($"/{id}", Method.Get);
+                //}
+                //else
+                //{
+                //    request = new RestRequest();
+                //}
+
+                //RestResponse response = await _restClient.ExecuteAsync(request);
+
+                //dynamic transaction;
+                //if (response.IsSuccessful)
+                //{
+                //    if (id.HasValue)
+                //    {
+                //        transaction = JsonConvert.DeserializeObject<Transaction>(response.Content);
+                //    }
+                //    else
+                //    {
+                //        transaction = JsonConvert.DeserializeObject<List<Transaction>>(response.Content);
+                //    }
+
+                //    return transaction;
+                //}
+
+                //return null;
 
                 if (id.HasValue)
                 {
-                    request = new RestRequest($"/{id}", Method.Get);
+                    return await _unitOfWork.Transaction.GetByIdAsync(id.Value);
                 }
                 else
                 {
-                    request = new RestRequest();
+                    return await _unitOfWork.Transaction.GetAllAsync();
                 }
-
-                RestResponse response = await _restClient.ExecuteAsync(request);
-
-                dynamic transaction;
-                if (response.IsSuccessful)
-                {
-                    if (id.HasValue)
-                    {
-                        transaction = JsonConvert.DeserializeObject<Transaction>(response.Content);
-                    }
-                    else
-                    {
-                        transaction = JsonConvert.DeserializeObject<List<Transaction>>(response.Content);
-                    }
-
-                    return transaction;
-                }
-
-                return null;
             }
             catch (Exception)
             {
@@ -64,20 +74,22 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request = new RestRequest($"/{transaction.Remetente}/{transaction.Recebedor}/{transaction.Valor}", Method.Post);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new RestRequest($"/{transaction.Remetente}/{transaction.Recebedor}/{transaction.Valor}", Method.Post);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                if (response.IsSuccessful)
-                {
-                    Transaction newTransaction = JsonConvert.DeserializeObject<Transaction>(response.Content);
+                //if (response.IsSuccessful)
+                //{
+                //    Transaction newTransaction = JsonConvert.DeserializeObject<Transaction>(response.Content
+                //    return newTransaction;
+                //}
 
-                    _unitOfWork.Transaction.Add(newTransaction);
-                    await _unitOfWork.SaveChangesAsync();
+                //return null;
 
-                    return newTransaction;
-                }
+                transaction.Id = 0;
+                _unitOfWork.Transaction.Add(transaction);
+                await _unitOfWork.CommitAsync();
 
-                return null;
+                return transaction;
             }
             catch (Exception)
             {
@@ -85,20 +97,29 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<dynamic> UpdateTransaction(Transaction transaction)
+        public async Task<dynamic> UpdateTransaction(int id, int status)
         {
             try
             {
-                RestRequest request = new($"/{transaction.Id}/{transaction.Status}", Method.Post);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new($"/{transaction.Id}/{transaction.Status}", Method.Post);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
-                if (response.IsSuccessful)
-                {
-                    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Transaction>(response.Content) : responseObject;
-                }
+                //Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
+                //if (response.IsSuccessful)
+                //{
+                //    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Transaction>(response.Content) : responseObject;
+                //}
 
-                return null;
+                //return null;
+
+                Transaction UpdatedTransaction = await _unitOfWork.Transaction.GetByIdAsync(id);
+                UpdatedTransaction.Status = status;
+
+                _unitOfWork.Transaction.Update(UpdatedTransaction);
+                await _unitOfWork.CommitAsync();
+
+                return UpdatedTransaction;
+
             }
             catch (Exception)
             {

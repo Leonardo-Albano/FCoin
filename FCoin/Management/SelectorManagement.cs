@@ -1,5 +1,6 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
+using FCoin.Repositories;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Runtime.CompilerServices;
@@ -12,49 +13,61 @@ namespace FCoin.Business
         private readonly IConfiguration _configuration;
         private readonly IClientManagement _clientManagement;
         private readonly IValidatorManagement _validatorManagement;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SelectorManagement(IConfiguration configuration, IClientManagement clientManagement, IValidatorManagement validatorManagement)
+        public SelectorManagement(IConfiguration configuration, IClientManagement clientManagement, IValidatorManagement validatorManagement, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/seletor");
             _clientManagement = clientManagement;
             _validatorManagement = validatorManagement;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<dynamic> GetSelector(int? id)
         {
             try
             {
-                RestRequest request;
+                //RestRequest request;
+                
+
+                //if (id.HasValue)
+                //{
+                //    //request = new RestRequest($"/{id}", Method.Get);
+                //}
+                //else
+                //{
+                //    //request = new RestRequest();
+                //}
+
+                //RestResponse response = await _restClient.ExecuteAsync(request);
+
+                //dynamic selector;
+                //if (response.IsSuccessful)
+                //{
+                //    if (id.HasValue)
+                //    {
+                //        selector = JsonConvert.DeserializeObject<Selector>(response.Content);
+                //    }
+                //    else
+                //    {
+                //        selector = JsonConvert.DeserializeObject<List<Selector>>(response.Content);
+                //    }
+
+                //    return selector;
+                //}
+
+                //return null;
 
                 if (id.HasValue)
                 {
-                    request = new RestRequest($"/{id}", Method.Get);
+                    return await _unitOfWork.Selector.GetByIdAsync(id.Value);
                 }
                 else
                 {
-                    request = new RestRequest();
+                    return await _unitOfWork.Selector.GetAllAsync();
                 }
-
-                RestResponse response = await _restClient.ExecuteAsync(request);
-
-                dynamic selector;
-                if (response.IsSuccessful)
-                {
-                    if (id.HasValue)
-                    {
-                        selector = JsonConvert.DeserializeObject<Selector>(response.Content);
-                    }
-                    else
-                    {
-                        selector = JsonConvert.DeserializeObject<List<Selector>>(response.Content);
-                    }
-
-                    return selector;
-                }
-
-                return null;
             }
             catch (Exception)
             {
@@ -66,16 +79,22 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request = new RestRequest($"/{selector.Nome}/{selector.Ip}", Method.Post);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new RestRequest($"/{selector.Nome}/{selector.Ip}", Method.Post);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                if (response.IsSuccessful)
-                {
-                    Selector newSelector = JsonConvert.DeserializeObject<Selector>(response.Content);
-                    return newSelector;
-                }
+                //if (response.IsSuccessful)
+                //{
+                //    Selector newSelector = JsonConvert.DeserializeObject<Selector>(response.Content);
+                //    return newSelector;
+                //}
 
-                return null;
+                //return null;
+
+                selector.Id = 0;
+                _unitOfWork.Selector.Add(selector);
+                await _unitOfWork.CommitAsync();
+
+                return selector;
             }
             catch (Exception)
             {
@@ -83,20 +102,29 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<dynamic> UpdateSelector(Selector selector)
+        public async Task<dynamic> UpdateSelector(int id, Selector selector)
         {
             try
             {
-                RestRequest request = new($"/{selector.Id}/{selector.Nome}/{selector.Ip}", Method.Post);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new($"/{selector.Id}/{selector.Nome}/{selector.Ip}", Method.Post);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
-                if (response.IsSuccessful)
-                {
-                    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Selector>(response.Content) : responseObject;
-                }
+                //Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
+                //if (response.IsSuccessful)
+                //{
+                //    return responseObject.Count > 1 ? JsonConvert.DeserializeObject<Selector>(response.Content) : responseObject;
+                //}
 
-                return null;
+                //return null;
+
+                Selector updatedSelector = await _unitOfWork.Selector.GetByIdAsync(id);
+                updatedSelector.Nome = selector.Nome;
+                updatedSelector.Ip = selector.Ip;
+
+                _unitOfWork.Selector.Update(updatedSelector);
+                await _unitOfWork.CommitAsync();
+                
+                return updatedSelector;
             }
             catch (Exception)
             {
@@ -108,20 +136,23 @@ namespace FCoin.Business
         {
             try
             {
-                RestRequest request = new($"/{id}", Method.Delete);
-                RestResponse response = await _restClient.ExecuteAsync(request);
+                //RestRequest request = new($"/{id}", Method.Delete);
+                //RestResponse response = await _restClient.ExecuteAsync(request);
 
-                Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
-                if (response.IsSuccessful)
-                {
-                    if (responseObject.ContainsValue("Validador Deletado com Sucesso"))
-                    {
-                        return true;
-                    }
+                //Dictionary<dynamic, dynamic> responseObject = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(response.Content);
+                //if (response.IsSuccessful)
+                //{
+                //    if (responseObject.ContainsValue("Validador Deletado com Sucesso"))
+                //    {
+                //        return true;
+                //    }
 
-                }
+                //}
+                //return false;
 
-                return false;
+                Selector selector = await _unitOfWork.Selector.GetByIdAsync(id);
+                _unitOfWork.Selector.Remove(selector);
+                return await _unitOfWork.CommitAsync() > 0;
             }
             catch (Exception)
             {

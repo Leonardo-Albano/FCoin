@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FCoin.Migrations
 {
     [DbContext(typeof(FDbContext))]
-    [Migration("20230616014034_FirstMigration")]
+    [Migration("20230619230006_FirstMigration")]
     partial class FirstMigration
     {
         /// <inheritdoc />
@@ -112,13 +112,34 @@ namespace FCoin.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("SelectorId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SelectorId");
+
                     b.ToTable("Validators");
+                });
+
+            modelBuilder.Entity("FCoin.Models.Validator", b =>
+                {
+                    b.HasOne("FCoin.Models.Selector", "Selector")
+                        .WithMany("Validators")
+                        .HasForeignKey("SelectorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Selector");
+                });
+
+            modelBuilder.Entity("FCoin.Models.Selector", b =>
+                {
+                    b.Navigation("Validators");
                 });
 #pragma warning restore 612, 618
         }

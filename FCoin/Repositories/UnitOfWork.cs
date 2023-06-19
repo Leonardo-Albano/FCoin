@@ -5,6 +5,7 @@ namespace FCoin.Repositories
     public interface IUnitOfWork : IDisposable
     {
         IClientRepository Client { get; }
+        ISelectorRepository Selector { get; }
         ITransactionRepository Transaction { get; }
         IValidatorRepository Validator { get; }
         int SaveChanges();
@@ -16,6 +17,7 @@ namespace FCoin.Repositories
     {
         private readonly FDbContext _context;
         private IClientRepository _clientRepository;
+        private ISelectorRepository _selectorRepository;
         private ITransactionRepository _transactionRepository;
         private IValidatorRepository _validatorRepository;
 
@@ -31,6 +33,7 @@ namespace FCoin.Repositories
         }
 
         public IClientRepository Client => _clientRepository;
+        public ISelectorRepository Selector => _selectorRepository;
         public ITransactionRepository Transaction => _transactionRepository;
         public IValidatorRepository Validator => _validatorRepository;
 

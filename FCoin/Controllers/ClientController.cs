@@ -29,8 +29,14 @@ namespace FCoin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateClient(Client client)
+        public async Task<IActionResult> CreateClient(string nome, string senha)
         {
+            Client client = new()
+            {
+                Nome = nome,
+                Senha = senha
+            };
+
             client = await _clientManagement.CreateClient(client);
 
             if (client == null)
@@ -49,10 +55,11 @@ namespace FCoin.Controllers
             if (result is Client)
             {
                 return Ok(result);
-            }else if(result is Dictionary<dynamic, dynamic>) 
-            {
-                return StatusCode(405, "Method Not Allowed");
             }
+            //else if(result is Dictionary<dynamic, dynamic>) 
+            //{
+            //    return StatusCode(405, "Method Not Allowed");
+            //}
 
             return BadRequest(result);
         }

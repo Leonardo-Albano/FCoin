@@ -1,5 +1,4 @@
-﻿using FCoin.Business;
-using FCoin.Business.Interfaces;
+﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,17 +42,30 @@ namespace FCoin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateSelector(Selector selector)
+        public async Task<IActionResult> UpdateSelector(int id, Selector selector)
         {
-            var result = await _selectorManagement.UpdateSelector(selector);
+            var result = await _selectorManagement.UpdateSelector(id, selector);
 
-            if (result is Client)
+            if (result is Selector)
             {
                 return Ok(result);
             }
-            else if (result is Dictionary<dynamic, dynamic>)
+            //else if (result is Dictionary<dynamic, dynamic>)
+            //{
+            //    return StatusCode(405, "Method Not Allowed");
+            //}
+
+            return BadRequest(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteSelector(int id)
+        {
+            var result = await _selectorManagement.DeleteSelector(id);
+
+            if (result)
             {
-                return StatusCode(405, "Method Not Allowed");
+                return Ok(result);
             }
 
             return BadRequest(result);
