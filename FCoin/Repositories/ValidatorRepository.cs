@@ -17,7 +17,11 @@ namespace FCoin.Repositories
                         .Where(v=>v.SelectorId == selectorId)
                         .ToListAsync();
         }
-
+        
+        public async Task<int> OffersBySelector (int selectorId)
+        {
+            return await _context.Validators.Where(v => v.SelectorId == selectorId).SumAsync(v => v.Offer);
+        }
 
         public ValidatorRepository(FDbContext STContext) : base(STContext)
         {

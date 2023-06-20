@@ -30,7 +30,7 @@ namespace FCoin.Business
             try
             {
                 //RestRequest request;
-                
+
 
                 //if (id.HasValue)
                 //{
@@ -123,7 +123,7 @@ namespace FCoin.Business
 
                 _unitOfWork.Selector.Update(updatedSelector);
                 await _unitOfWork.CommitAsync();
-                
+
                 return updatedSelector;
             }
             catch (Exception)
@@ -160,18 +160,52 @@ namespace FCoin.Business
                 return false;
             }
         }
+        public async Task<List<int>> SelectValidators(int id, int transactionId)
+        {
+            List<int> selectedValidators = new List<int>();
 
-        //public async Task<KeyValuePair<int, bool>> SelectValidators()
-        //{
-        //    try
-        //    {
-        //        List<Validator> validators = await _validatorManagement.GetValidator(null);
+            try
+            {
+                int totalOffers = await _unitOfWork.Validator.OffersBySelector(id);
+                List<Validator> validators = await _unitOfWork.Validator.ValidatorsBySelectorId(id);
 
+                Dictionary<int, int> values = new Dictionary<int, int>();
+                foreach (Validator validator in validators)
+                {
+                    int percentual = (validator.Offer / totalOffers) * 100;
+                    if (percentual < 5)
+                    {
+                        percentual = 5;
+                    }
+                    else if (percentual > 40)
+                    {
+                        percentual = 40;
+                    }
+                    values.Add(validator.Id, percentual);
+                }
 
-        //    }
-        //    catch (Exception)
-        //    {
-        //    }
-        //}
+                var sortedValidators = values.OrderByDescending(pair => pair.Value).Take(3);
+
+                selectedValidators = sortedValidators.Select(pair => pair.Key).ToList();
+                
+                foreach (int validatorId in selectedValidators)
+                {
+                    _unitOfWork.TransactionLink.Add(new()
+                    {
+                        TransactionId = transactionId,
+                        ValidatorId = validatorId
+                    });
+
+                }
+                await _unitOfWork.CommitAsync();
+
+                return selectedValidators;
+            }
+            catch (Exception)
+            {
+                return new();
+            }
+        }
+
     }
 }

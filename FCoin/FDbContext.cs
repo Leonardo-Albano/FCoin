@@ -13,6 +13,7 @@ namespace FCoin
         public DbSet<Selector> Selectors { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Validator> Validators { get; set; }
+        public DbSet<TransactionLink> TransactionsLink { get; set; }
 
     }
 }

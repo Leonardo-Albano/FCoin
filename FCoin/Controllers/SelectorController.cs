@@ -1,6 +1,7 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FCoin.Controllers
 {
@@ -56,6 +57,19 @@ namespace FCoin.Controllers
             //}
 
             return BadRequest(result);
+        }
+
+        [HttpPost("SelectValidators")]
+        public async Task<IActionResult> SelectValidators(int id, int transactionId)
+        {
+            var result = await _selectorManagement.SelectValidators(id, transactionId);
+
+            if(!result.IsNullOrEmpty())
+            {
+                return Ok (result);
+            }
+
+            return BadRequest();
         }
 
         [HttpDelete]

@@ -8,5 +8,6 @@ namespace FCoin.Business.Interfaces
         Task<Selector> CreateSelector(Selector selector);
         Task<dynamic> UpdateSelector(int id, Selector selector);
         Task<bool> DeleteSelector(int id);
+        Task<List<int>> SelectValidators(int id, int transactionId);
     }
 }

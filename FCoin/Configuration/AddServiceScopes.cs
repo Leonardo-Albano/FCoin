@@ -25,6 +25,8 @@ namespace FCoin.Configuration
             services.AddScoped<ITransactionManagement, TransactionManagement>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+            services.AddScoped<ITransactionLinkRepository, TransactionLinkRepository>();
+
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
