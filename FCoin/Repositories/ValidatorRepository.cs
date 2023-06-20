@@ -6,7 +6,7 @@ namespace FCoin.Repositories
 {
     public class ValidatorRepository : Repository<Validator>, IValidatorRepository
     {
-        private FDbContext _context;
+        private readonly FDbContext _context;
         public ValidatorRepository(DbContext context) : base(context)
         {
         }

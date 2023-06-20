@@ -79,7 +79,7 @@ namespace FCoin.Business
 
                 //if (response.IsSuccessful)
                 //{
-                //    _unitOfWork.Client.Add(client);
+                //    _unitOfWork.Client.Add(client)
                 //    await _unitOfWork.CommitAsync();
                 //    client = JsonConvert.DeserializeObject<Client>(response.Content);
 

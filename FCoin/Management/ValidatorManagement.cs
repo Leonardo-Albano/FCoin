@@ -67,25 +67,24 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<int> CreateValidator(Validator validator)
+        public async Task<KeyValuePair<int, string>> CreateValidator(Validator validator)
         {
             try
             {
                 Selector selector = await _unitOfWork.Selector.GetByIdAsync(validator.SelectorId);
 
                 if (selector == null)
-                    return 0;
+                    return new();
 
-                validator.Selector = selector;
                 _unitOfWork.Validator.Add(validator);
 
                 await _unitOfWork.CommitAsync();
-                return validator.Id;
+                return new(validator.Id, validator.Token);
 
             }
             catch (Exception)
             {
-                return 0;
+                return new();
             }
         }
 
@@ -115,47 +114,82 @@ namespace FCoin.Business
             }
         }
 
-        public async Task<bool> ValidateTransaction(int idValidator, string tokenValidator, int id)
+        public async Task<bool> ValidateTransaction(int validatorId, string tokenValidator, int transactionId)
         {
             try
             {
-                Transaction? transaction = await _transactionManagement.GetTransaction(id);
+                TransactionLink transactionLink = await _unitOfWork.TransactionLink.TransactionLinkByValidatorIdAndTransactionId(validatorId, transactionId);
+
+                if(transactionLink == null)
+                {
+                    return false;
+                }
+
+                Transaction? transaction = await _transactionManagement.GetTransaction(transactionId);
 
                 if (transaction == null)
                 {
+                    transactionLink.Success = 2;
+                    _unitOfWork.TransactionLink.Update(transactionLink);
+                    await _unitOfWork.CommitAsync();
                     return false;
                 }
 
                 Client? clientSender = await _clientManagement.GetClient(transaction.Remetente);
                 Client? clientReceiver = await _clientManagement.GetClient(transaction.Recebedor);
-                Validator validator = await GetValidator(idValidator);
-                DateTime? hour = await _hourManagement.GetHour();
-                DateTime lastTransactionHour = await _unitOfWork.Transaction.LastTransaction();
+                Validator validator = await GetValidator(validatorId);
+                DateTime hour = await _hourManagement.GetHour();
+                DateTime lastSuccessTransactionHour = await _unitOfWork.Transaction.LastTransaction();
                 int numberOfTransactionsInLastMinute = await _unitOfWork.Transaction.TransactionsInLastMinuteCountByClientId(transaction.Remetente);
 
-                if (clientSender == null || clientReceiver == null || hour == null)
+                if (clientSender == null || clientReceiver == null || validator == null)
                 {
+                    transactionLink.Success = 2;
+                    _unitOfWork.TransactionLink.Update(transactionLink);
+                    await _unitOfWork.CommitAsync();
                     return false;
                 }
 
-                if (transaction.Valor > clientSender.QtdMoeda ||
-                    hour >= transaction.Data ||
-                    hour >= clientSender.InvalidoAte ||
-                    transaction.Data > lastTransactionHour ||
-                    numberOfTransactionsInLastMinute > 1000 ||
-                    tokenValidator != validator.Token
-                    //transaction.Time > lastTransaction.Time
-                    //uniqueKey
-                    )
+                bool isOnMaxTransactionsPermitted = numberOfTransactionsInLastMinute < 1000;
+                if (!isOnMaxTransactionsPermitted)
                 {
-                    return false;
+                    clientSender.InvalidoAte = hour.AddMinutes(1);
+                    _unitOfWork.Client.Update(clientSender);
                 }
 
-                return true;
+                if (transaction.Valor < clientSender.QtdMoeda &&
+                    hour >= transaction.Data &&
+                    hour >= clientSender.InvalidoAte &&
+                    transaction.Data > lastSuccessTransactionHour &&
+                    isOnMaxTransactionsPermitted &&
+                    tokenValidator == validator.Token)
+                {
+                    transactionLink.Success = 1;
+                    _unitOfWork.TransactionLink.Update(transactionLink);
+                    await _unitOfWork.CommitAsync();
+                    return true;
+                }
+
+                transactionLink.Success = 2;
+                _unitOfWork.TransactionLink.Update(transactionLink);
+                await _unitOfWork.CommitAsync();
+                return false;
             }
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public async Task<int?> LastTransactionToValidate(int validatorId)
+        {
+            try
+            {
+                return await _unitOfWork.TransactionLink.LastTransactionByValidator(validatorId);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

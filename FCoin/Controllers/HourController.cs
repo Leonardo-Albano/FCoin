@@ -20,7 +20,7 @@ namespace FCoin.Controllers
         {
             var hour = await _hourManagement.GetHour();
 
-            if (hour != null)
+            if (hour != new DateTime())
             {
                 return Ok(hour);
             }

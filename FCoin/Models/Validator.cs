@@ -10,10 +10,7 @@ namespace FCoin.Models
         public int Id { get; set; }
         public string Token { get; set; } = Guid.NewGuid().ToString();
         public int Offer { get; set; }
-
-            [ForeignKey("Selector")]
         public int SelectorId { get; set; }
-        [JsonIgnore]
-        public Selector Selector { get; set; }
+        public int Flags { get; set; } = 0;
     }
 }

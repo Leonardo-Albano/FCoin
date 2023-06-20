@@ -6,8 +6,9 @@ namespace FCoin.Business.Interfaces
     {
         Task<dynamic> GetValidator(int? id);
         Task<List<Validator>> GetValidatorsBySelector(int selectorId);
-        Task<int> CreateValidator(Validator validator);
+        Task<KeyValuePair<int, string>> CreateValidator(Validator validator);
         Task<bool> DeleteValidator(int id);
-        Task<bool> ValidateTransaction(int idValidator, string tokenValidator, int id);
+        Task<bool> ValidateTransaction(int validatorId, string tokenValidator, int transactionId);
+        Task<int?> LastTransactionToValidate(int validatorId);
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface IHourManagement
     {
-        Task<DateTime?> GetHour();
+        Task<DateTime> GetHour();
     }
 }

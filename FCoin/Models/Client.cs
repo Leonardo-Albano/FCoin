@@ -10,9 +10,6 @@ namespace FCoin.Models
         public string Nome { get; set; }
         public string Senha { get; set; }
         public int QtdMoeda { get; set; } = 100;
-        [JsonIgnore]
         public DateTime? InvalidoAte { get; set; } = new(); 
-        [JsonIgnore]
-        public int? Flags { get; set; } = 0;
     }
 }

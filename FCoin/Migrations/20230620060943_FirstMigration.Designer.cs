@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FCoin.Migrations
 {
     [DbContext(typeof(FDbContext))]
-    [Migration("20230620010327_SecondMigration")]
-    partial class SecondMigration
+    [Migration("20230620060943_FirstMigration")]
+    partial class FirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,9 +32,6 @@ namespace FCoin.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("Flags")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("InvalidoAte")
                         .HasColumnType("datetime2");
@@ -112,6 +109,9 @@ namespace FCoin.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Success")
+                        .HasColumnType("int");
+
                     b.Property<int>("TransactionId")
                         .HasColumnType("int");
 
@@ -131,6 +131,9 @@ namespace FCoin.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Flags")
+                        .HasColumnType("int");
+
                     b.Property<int>("Offer")
                         .HasColumnType("int");
 
@@ -143,25 +146,7 @@ namespace FCoin.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SelectorId");
-
                     b.ToTable("Validators");
-                });
-
-            modelBuilder.Entity("FCoin.Models.Validator", b =>
-                {
-                    b.HasOne("FCoin.Models.Selector", "Selector")
-                        .WithMany("Validators")
-                        .HasForeignKey("SelectorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Selector");
-                });
-
-            modelBuilder.Entity("FCoin.Models.Selector", b =>
-                {
-                    b.Navigation("Validators");
                 });
 #pragma warning restore 612, 618
         }

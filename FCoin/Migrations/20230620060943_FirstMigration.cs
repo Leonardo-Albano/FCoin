@@ -20,8 +20,7 @@ namespace FCoin.Migrations
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Senha = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     QtdMoeda = table.Column<int>(type: "int", nullable: false),
-                    InvalidoAte = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Flags = table.Column<int>(type: "int", nullable: true)
+                    InvalidoAte = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -60,29 +59,35 @@ namespace FCoin.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TransactionsLink",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ValidatorId = table.Column<int>(type: "int", nullable: false),
+                    TransactionId = table.Column<int>(type: "int", nullable: false),
+                    Success = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransactionsLink", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Validators",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SelectorId = table.Column<int>(type: "int", nullable: false)
+                    Offer = table.Column<int>(type: "int", nullable: false),
+                    SelectorId = table.Column<int>(type: "int", nullable: false),
+                    Flags = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Validators", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Validators_Selectors_SelectorId",
-                        column: x => x.SelectorId,
-                        principalTable: "Selectors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Validators_SelectorId",
-                table: "Validators",
-                column: "SelectorId");
         }
 
         /// <inheritdoc />
@@ -92,13 +97,16 @@ namespace FCoin.Migrations
                 name: "Clients");
 
             migrationBuilder.DropTable(
+                name: "Selectors");
+
+            migrationBuilder.DropTable(
                 name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "Validators");
+                name: "TransactionsLink");
 
             migrationBuilder.DropTable(
-                name: "Selectors");
+                name: "Validators");
         }
     }
 }

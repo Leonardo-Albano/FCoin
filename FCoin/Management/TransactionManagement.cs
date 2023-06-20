@@ -1,6 +1,7 @@
 ﻿using FCoin.Business.Interfaces;
 using FCoin.Models;
 using FCoin.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Runtime.CompilerServices;
@@ -11,14 +12,16 @@ namespace FCoin.Business
     {
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
+        private readonly IHourManagement _hourManagement;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork)
+        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork, IHourManagement hourManagement)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/transacoes");
             _unitOfWork = unitOfWork;
+            _hourManagement = hourManagement;
         }
 
         public async Task<dynamic> GetTransaction(int? id)
@@ -84,8 +87,7 @@ namespace FCoin.Business
                 //}
 
                 //return null;
-
-                transaction.Id = 0;
+                transaction.Data = await _hourManagement.GetHour();
                 _unitOfWork.Transaction.Add(transaction);
                 await _unitOfWork.CommitAsync();
 
@@ -124,6 +126,50 @@ namespace FCoin.Business
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public async Task<int> CheckStatus(int id)
+        {
+            try
+            {
+                int result = await _unitOfWork.TransactionLink.CheckIfIsCompleted(id);
+
+                if (result == 1)
+                {
+                    Transaction transaction = await _unitOfWork.Transaction.GetByIdAsync(id);
+                    Client clientSender = await _unitOfWork.Client.GetByIdAsync(transaction.Remetente);
+                    Client clientReceiver = await _unitOfWork.Client.GetByIdAsync(transaction.Recebedor);
+
+                    clientSender.QtdMoeda -= transaction.Valor;
+                    clientReceiver.QtdMoeda += transaction.Valor;
+
+                    _unitOfWork.Client.Update(clientSender);
+                    _unitOfWork.Client.Update(clientReceiver);
+
+                    bool anyIncorrectValidator = await _unitOfWork.TransactionLink.AnyIncorrectValidator(id);
+                    if (anyIncorrectValidator)
+                    {
+                        List<int> incorrectValidatorIds = await _unitOfWork.TransactionLink.GetIncorrectValidatorIds(id);
+                        foreach (int validatorId in incorrectValidatorIds)
+                        {
+                            Validator validator = await _unitOfWork.Validator.GetByIdAsync(validatorId);
+                            if (validator != null)
+                            {
+                                validator.Flags += 1;
+                                _unitOfWork.Validator.Update(validator);
+                            }
+                        }
+                    }
+
+                    await _unitOfWork.CommitAsync();
+                }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                return 0;
             }
         }
     }

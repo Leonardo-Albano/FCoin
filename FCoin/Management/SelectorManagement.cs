@@ -172,7 +172,7 @@ namespace FCoin.Business
                 Dictionary<int, int> values = new Dictionary<int, int>();
                 foreach (Validator validator in validators)
                 {
-                    int percentual = (validator.Offer / totalOffers) * 100;
+                    int percentual = (int)(((double)validator.Offer / totalOffers) * 100);
                     if (percentual < 5)
                     {
                         percentual = 5;

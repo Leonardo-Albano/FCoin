@@ -22,9 +22,10 @@ namespace FCoin.Repositories
         public async Task<DateTime> LastTransaction()
         {
             return await _context.Transactions
-                                    .OrderByDescending(t => t.Data)
-                                    .Select(t=>t.Data)
-                                    .FirstOrDefaultAsync();
+                .Where(t=>t.Status == 1)
+                .OrderByDescending(t => t.Data)
+                .Select(t=>t.Data)
+                .FirstOrDefaultAsync();
         }
         public TransactionRepository(FDbContext STContext) : base(STContext)
         {

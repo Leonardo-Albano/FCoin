@@ -16,7 +16,7 @@ namespace FCoin.Business
             _restClient = new RestClient($"{ipConnection}/hora");
         }
 
-        public async Task<DateTime?> GetHour()
+        public async Task<DateTime> GetHour()
         {
             try
             {
@@ -33,7 +33,7 @@ namespace FCoin.Business
             }
             catch (Exception)
             {
-                return null;
+                return new();
             }
         }
     }

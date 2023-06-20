@@ -23,17 +23,16 @@ namespace FCoin.Repositories
         private IValidatorRepository _validatorRepository;
         private ITransactionLinkRepository _transactionLinkRepository;
 
-        public UnitOfWork(FDbContext context,
-                          ITransactionRepository transactionRepository,
-                          IClientRepository clientRepository,
-                          IValidatorRepository validatorRepository,
-                          ITransactionLinkRepository transactionLinkRepository)
+        public UnitOfWork(IClientRepository clientRepository, ISelectorRepository selectorRepository,
+            ITransactionRepository transactionRepository, IValidatorRepository validatorRepository,
+            ITransactionLinkRepository transactionLinkRepository, FDbContext context)
         {
-            _context = context;
-            _transactionRepository = transactionRepository;
             _clientRepository = clientRepository;
+            _selectorRepository = selectorRepository;
+            _transactionRepository = transactionRepository;
             _validatorRepository = validatorRepository;
             _transactionLinkRepository = transactionLinkRepository;
+            _context = context;
         }
 
         public IClientRepository Client => _clientRepository;

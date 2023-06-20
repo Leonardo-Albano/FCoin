@@ -30,8 +30,14 @@ namespace FCoin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSelector(Selector selector)
+        public async Task<IActionResult> CreateSelector(string ip, string nome)
         {
+            Selector selector = new()
+            {
+                Ip = ip,
+                Nome = nome
+            };
+
             selector = await _selectorManagement.CreateSelector(selector);
 
             if (selector == null)
@@ -43,8 +49,14 @@ namespace FCoin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateSelector(int id, Selector selector)
+        public async Task<IActionResult> UpdateSelector(int id, string nome, string ip)
         {
+            Selector selector = new()
+            {
+                Ip = ip,
+                Nome = nome
+            };
+
             var result = await _selectorManagement.UpdateSelector(id, selector);
 
             if (result is Selector)
@@ -60,9 +72,9 @@ namespace FCoin.Controllers
         }
 
         [HttpPost("SelectValidators")]
-        public async Task<IActionResult> SelectValidators(int id, int transactionId)
+        public async Task<IActionResult> SelectValidators(int selectorId, int transactionId)
         {
-            var result = await _selectorManagement.SelectValidators(id, transactionId);
+            var result = await _selectorManagement.SelectValidators(selectorId, transactionId);
 
             if(!result.IsNullOrEmpty())
             {

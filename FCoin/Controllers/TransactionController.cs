@@ -65,5 +65,12 @@ namespace FCoin.Controllers
 
             return BadRequest(result);
         }
+
+        [HttpGet("CheckStatus")]
+        public async Task<IActionResult> CheckStatus(int id)
+        {
+            var result = await _transactionManagement.CheckStatus(id);
+            return Ok(result);
+        }
     }
 }
