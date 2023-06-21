@@ -162,32 +162,44 @@ namespace FCoin.Business
         }
         public async Task<List<int>> SelectValidators(int id, int transactionId)
         {
-            List<int> selectedValidators = new List<int>();
+            List<int> selectedValidators = new();
 
             try
             {
-                int totalOffers = await _unitOfWork.Validator.OffersBySelector(id);
-                List<Validator> validators = await _unitOfWork.Validator.ValidatorsBySelectorId(id);
-
-                Dictionary<int, int> values = new Dictionary<int, int>();
-                foreach (Validator validator in validators)
+                while (true)
                 {
-                    int percentual = (int)(((double)validator.Offer / totalOffers) * 100);
-                    if (percentual < 5)
+                    int totalOffers = await _unitOfWork.Validator.OffersBySelector(id);
+                    List<Validator> validators = await _unitOfWork.Validator.ValidatorsBySelectorId(id);
+
+                    Dictionary<int, int> values = new Dictionary<int, int>();
+                    foreach (Validator validator in validators)
                     {
-                        percentual = 5;
+                        int percentual = (int)(((double)validator.Offer / totalOffers) * 100);
+                        if (percentual < 5)
+                        {
+                            percentual = 5;
+                        }
+                        else if (percentual > 40)
+                        {
+                            percentual = 40;
+                        }
+                        values.Add(validator.Id, percentual);
                     }
-                    else if (percentual > 40)
-                    {
-                        percentual = 40;
-                    }
-                    values.Add(validator.Id, percentual);
+
+                    List<int> busyValidators = await _unitOfWork.TransactionLink.BusyValidators();
+                    var sortedValidators = values.Where(pair => !busyValidators.Contains(pair.Key))
+                                                 .OrderByDescending(pair => pair.Value)
+                                                 .Take(3);
+
+
+                    selectedValidators = sortedValidators.Select(pair => pair.Key).ToList();
+
+                    if(selectedValidators.Count == 3)
+                        break;
+                    else
+                        Thread.Sleep(TimeSpan.FromMinutes(1));
                 }
 
-                var sortedValidators = values.OrderByDescending(pair => pair.Value).Take(3);
-
-                selectedValidators = sortedValidators.Select(pair => pair.Key).ToList();
-                
                 foreach (int validatorId in selectedValidators)
                 {
                     _unitOfWork.TransactionLink.Add(new()

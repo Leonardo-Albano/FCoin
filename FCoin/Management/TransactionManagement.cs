@@ -13,15 +13,17 @@ namespace FCoin.Business
         private readonly RestClient _restClient;
         private readonly IConfiguration _configuration;
         private readonly IHourManagement _hourManagement;
+        //private readonly ISelectorManagement _selectorManagement;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork, IHourManagement hourManagement)
+        public TransactionManagement(IConfiguration configuration, IUnitOfWork unitOfWork, IHourManagement hourManagement/*, ISelectorManagement selectorManagement*/)
         {
             _configuration = configuration;
             string ipConnection = _configuration["IpConnection"];
             _restClient = new RestClient($"{ipConnection}/transacoes");
             _unitOfWork = unitOfWork;
             _hourManagement = hourManagement;
+            //_selectorManagement = selectorManagement;
         }
 
         public async Task<dynamic> GetTransaction(int? id)
@@ -90,6 +92,12 @@ namespace FCoin.Business
                 transaction.Data = await _hourManagement.GetHour();
                 _unitOfWork.Transaction.Add(transaction);
                 await _unitOfWork.CommitAsync();
+
+                //List<Selector> selectors = await _selectorManagement.GetSelector(null);
+                //Random random = new();
+                //int randomIndex = random.Next(0, selectors.Count);
+                //Selector chosenSelector = selectors[randomIndex];
+                //_selectorManagement.SelectValidators(chosenSelector.Id, transaction.Id);
 
                 return transaction;
             }

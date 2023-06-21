@@ -9,5 +9,6 @@ namespace FCoin.Repositories.Interfaces
         Task<bool> AnyIncorrectValidator(int transactionId);
         Task<List<int>> GetIncorrectValidatorIds(int transactionId);
         Task<int> CheckIfIsCompleted(int transactionId);
+        Task<List<int>> BusyValidators();
     }
 }

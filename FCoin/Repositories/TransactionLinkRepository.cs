@@ -1,6 +1,7 @@
 ﻿using FCoin.Models;
 using FCoin.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace FCoin.Repositories
 {
@@ -69,6 +70,13 @@ namespace FCoin.Repositories
             return 0;
         }
 
+        public async Task<List<int>> BusyValidators()
+        {
+            return await _context.TransactionsLink
+                            .Where(t => t.Success == 0)
+                            .Select(t=>t.ValidatorId)
+                            .ToListAsync();
+        }
         public async Task<int> LastTransactionByValidator(int validatorId)
         {
             return await _context.TransactionsLink
